@@ -7,6 +7,7 @@ use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Hash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -31,9 +32,14 @@ class UserController extends Controller
         if ($unauthorized = $this->authorize('users-view')) {
             return $unauthorized;
         }
-
-        $user = User::with('roles')->findOrFail($id);
-
+        try {
+            $user = User::with('roles')->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
+        
         return new UserResource($user);
     }
 
@@ -66,9 +72,14 @@ class UserController extends Controller
         }
         $data = $request->all();
 
-        $user = User::findOrFail($id);
-        $user->update($data);
-
+        try {
+            $user = User::findOrFail($id);
+            $user->update($data);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
         return response()->json([
             'message' => 'User updated successfully.',
             'user' => new UserResource($user)
@@ -80,8 +91,15 @@ class UserController extends Controller
         if ($unauthorized = $this->authorize('users-delete')) {
             return $unauthorized;
         }
-        $user = User::findOrFail($id);
-        $user->delete();
+
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'User not found.'
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'User deleted successfully.',

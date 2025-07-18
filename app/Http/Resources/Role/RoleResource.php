@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\User;
+namespace App\Http\Resources\Role;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class RoleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,12 +17,9 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
-            'is_active' => $this->is_active ?? true,
-            'role' => [
-                'id'=> $this->roles->first()->id ?? '',
-                'name'=> $this->is_super_admin ? 'admin' : $this->getRoleName() ?? '',
-            ]
+            'display_name' => $this->display_name ?? '',
+            'description' => $this->description ?? '',
+            'permissions' => $this->permissions->pluck('name'),
         ];
     }
 }

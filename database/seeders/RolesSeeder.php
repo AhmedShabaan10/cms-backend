@@ -19,28 +19,35 @@ class RolesSeeder extends Seeder
             'description' => 'Has access to all features and settings.',
         ]);
         $admin->syncPermissions([
+            
             'view-dashboard',
 
+            //roles
             'roles-list',
             'roles-view',
             'roles-create',
             'roles-update',
             'roles-delete',
 
+            //users
             'users-list',
             'users-view',
             'users-create',
             'users-update',
             'users-delete',
-            
-            'products-list',
-            'products-view',
+
+            //products
+            'product-list',
+            'product-view',
             'product-create',
             'product-update',
             'product-delete',
 
-            'view-orders',
-            'update-orders',
+            //orders
+            'orders-list',
+            'orders-view',
+            'orders-create',
+            'orders-update',
         ]);
 
         $user = Role::firstOrCreate([
@@ -48,7 +55,15 @@ class RolesSeeder extends Seeder
             'display_name' => 'Normal User',
             'description' => 'Can view products and orders.',
         ]);
-        // $user->syncPermissions(['view-orders']);
+        $user->syncPermissions([
+            
+            'view-dashboard',
+            
+            'orders-list',
+            'orders-view',
+            'orders-create',
+            'orders-update',
+        ]);
 
     }
 }

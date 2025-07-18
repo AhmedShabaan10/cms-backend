@@ -6,8 +6,7 @@ use App\Http\Requests\Product\CreateProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductController extends Controller
 {
@@ -22,14 +21,21 @@ class ProductController extends Controller
         return ProductResource::collection($products);
     }
 
-    
+
     public function show($id)
     {
         if ($unauthorized = $this->authorize('product-view')) {
             return $unauthorized;
         }
-        $product = Product::with('category')->findOrFail($id);
+        try {
 
+            $product = Product::with('category')->findOrFail($id);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Product not found.'
+            ], 404);
+        }
         return new ProductResource($product);
     }
 
@@ -58,9 +64,16 @@ class ProductController extends Controller
         }
 
         $data = $request->all();
-        $product = Product::findOrFail($id);
+        try {
 
+        $product = Product::findOrFail($id);
         $product->update($data);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Product not found.'
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Product updated successfully',
@@ -75,8 +88,14 @@ class ProductController extends Controller
             return $unauthorized;
         }
 
-        $product = Product::findOrFail($id);
-        $product->delete();
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Product not found.'
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'Product deleted successfully'
