@@ -61,4 +61,8 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->roles->pluck('display_name')->first();
     }
+
+    public function orders(){
+        return $this->hasMany(Order::class);
+    }
 }

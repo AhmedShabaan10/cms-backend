@@ -110,7 +110,7 @@
                         </li>
                     @endif
 
-                    @if (Auth::user()->is_super_admin || Auth::user()->hasPermission('products-list'))
+                    @if (Auth::user()->is_super_admin || Auth::user()->hasPermission('product-list'))
                         <li class="menu {{ $isActive ? 'active' : '' }}">
                             <a href="#product-management" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                                 <div class="">
@@ -135,7 +135,7 @@
                             </a>
                             <ul class="collapse submenu list-unstyled" id="product-management" data-bs-parent="#accordionExample">
                                 <li class="{{ $currentRouteBase == 'products' ? 'active' : '' }}">
-                                    @if (Auth::user()->is_super_admin || Auth::user()->hasPermission('products-list'))
+                                    @if (Auth::user()->is_super_admin || Auth::user()->hasPermission('product-list'))
                                         <a href="{{ route('list.products') }}"> Products </a>
                                     @endif
                                 </li>

@@ -56,7 +56,7 @@
                                 </div>
                                 <div class="media-body">
                                     <h5>{{ Auth::user()->name }}</h5>
-                                    <p>{{ Auth::user()->role->name ?? 'Admin' }}</p>
+                                    <p>{{ Auth::user()->getRoleName() ?? 'admin' }}</p>
                                 </div>
                             </div>
                         </div>

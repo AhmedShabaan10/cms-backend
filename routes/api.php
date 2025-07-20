@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
@@ -10,14 +11,14 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::post('/register',[AuthController::class,'register']);
-Route::post('/login',[AuthController::class,'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    
-    Route::post('/logout',[AuthController::class,'logout']);
-    
+
+    Route::post('/logout', [AuthController::class, 'logout']);
+
     Route::resource('/users', UserController::class);
 
     Route::resource('/roles', RoleController::class);
@@ -25,5 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('/products', ProductController::class);
 
     Route::resource('/orders', OrderController::class);
-    
+
+    Route::get('/status', [GeneralController::class, 'get_orders_status']);
+    Route::get('/categories', [GeneralController::class, 'get_products_categories']);
+    Route::get('/permissions', [GeneralController::class, 'get_permissions']);
+
 });

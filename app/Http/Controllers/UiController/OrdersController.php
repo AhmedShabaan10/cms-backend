@@ -4,114 +4,77 @@
 namespace App\Http\Controllers\UiController;
 
 use App\Http\Controllers\Controller;
-use App\Models\Status;
-use App\Models\User;
+use App\Services\CallApiService;
 use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
+    private $call_api;
+
+    public function __construct(CallApiService $call_api)
+    {
+        $this->call_api = $call_api;
+    }
+
     public function index()
     {
-        $productsRequest = Request::create('/api/orders?p=1', 'GET', [], [], [], [
-            'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-            'HTTP_ACCEPT' => 'application/json'
-        ]);
-        $response = app()->handle($productsRequest);
+        $response = $this->call_api->callApi('GET', '/api/orders?p=1');
 
-        if ($response->getStatusCode() === 200) {
-            $productsData = json_decode($response->getContent(), true);
-            $orders = $productsData['data'] ?? $productsData;
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
 
-        if ($response->getStatusCode() !== 200) {
-            $responseData = json_decode($response->getContent(), true);
-            $errorMessage = $responseData['message'] ?? 'Failed to get roles.';
-            return redirect()->back()->withErrors(['error' => $errorMessage]);
-        }
-
-        return view('orders.index', compact('orders'));
+        return view('orders.index', ['orders' => $response['data']]);
     }
 
     public function show($id)
     {
-        $apiRequest = Request::create("/api/orders/{$id}", 'GET', [], [], [], [
-            'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-            'HTTP_ACCEPT' => 'application/json'
-        ]);
+        $response = $this->call_api->callApi('GET', "/api/orders/{$id}");
 
-        $response = app()->handle($apiRequest);
-
-        if ($response->getStatusCode() === 200) {
-            $data = json_decode($response->getContent(), true);
-            $order = $data['data'] ?? $data;
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
 
-        if ($response->getStatusCode() !== 200) {
-            $responseData = json_decode($response->getContent(), true);
-            $errorMessage = $responseData['message'] ?? 'Failed to get order.';
-            return redirect()->back()->withErrors(['error' => $errorMessage]);
-        }
-
-        return view('orders.show', compact('order'));
+        return view('orders.show', ['order' => $response['data']]);
     }
+
 
     public function edit($id)
     {
-        if (session('api_token')) {
-            $apiRequest = Request::create("/api/orders/{$id}", 'GET', [], [], [], [
-                'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-                'HTTP_ACCEPT' => 'application/json'
-                ,
-            ]);
-
-            $response = app()->handle($apiRequest);
-
-            if ($response->getStatusCode() === 200) {
-                $data = json_decode($response->getContent(), true);
-                $order = $data['data'] ?? $data;
-            }
-
-            if ($response->getStatusCode() !== 200) {
-                $responseData = json_decode($response->getContent(), true);
-                $errorMessage = $responseData['message'] ?? 'Failed to get order.';
-                return redirect()->back()->withErrors(['error' => $errorMessage]);
-            }
-            $users = User::all();
-            $status = Status::all();
-
+        $response = $this->call_api->callApi('GET', "/api/orders/{$id}");
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
-        return view('orders.edit', compact('order', 'users' , 'status'));
+
+        $users_resource = $this->call_api->callApi('GET', '/api/users?p=1');
+        if (isset($users_resource['error'])) {
+            return redirect()->back()->withErrors(['error' => $users_resource['error']]);
+        }
+
+        $status_resource = $this->call_api->callApi('GET', '/api/status');
+        if (isset($status_resource['error'])) {
+            return redirect()->back()->withErrors(['error' => $status_resource['error']]);
+        }
+
+        return view('orders.edit', [
+            'order' => $response['data'],
+            'users' => $users_resource['data'],
+            'status' => $status_resource['data']
+        ]);
     }
+
 
     public function update(Request $request, $id)
     {
-        $data = $request->only([
-            'user_id',
-            'status_id',       
-        ]);
+        $data = $request->only(['user_id', 'status_id']);
+        $response = $this->call_api->callApi('PUT', "/api/orders/{$id}", $data);
 
-        $apiRequest = Request::create(
-            "/api/orders/{$id}",
-            'PUT',
-            $data,
-            [],
-            [],
-            [
-                'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-                'HTTP_ACCEPT' => 'application/json'
-            ]
-        );
-
-        $response = app()->handle($apiRequest);
-        // dd($response);
-
-        if ($response->getStatusCode() !== 200) {
-            $responseData = json_decode($response->getContent(), true);
-            $errorMessage = $responseData['message'] ?? 'Failed to update role.';
-            return redirect()->back()->withErrors(['error' => $errorMessage]);
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
-        return redirect()->route('list.orders')->with('success', 'Order updated successfully.');
 
+        return redirect()->route('list.orders')->with('success', 'Order updated successfully.');
     }
+
 
 }

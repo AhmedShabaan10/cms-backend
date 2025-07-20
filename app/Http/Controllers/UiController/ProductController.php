@@ -4,146 +4,92 @@
 namespace App\Http\Controllers\UiController;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
-use App\Models\Role;
+use App\Services\CallApiService;
 use Illuminate\Http\Request;
-use App\Models\Permission;
+
 
 class ProductController extends Controller
 {
+    private $call_api;
+
+    public function __construct(CallApiService $call_api)
+    {
+        $this->call_api = $call_api;
+    }
+
     public function index()
     {
-        $productsRequest = Request::create('/api/products?p=1', 'GET', [], [], [], [
-            'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-            'HTTP_ACCEPT' => 'application/json'
-        ]);
-        $response = app()->handle($productsRequest);
+        $response = $this->call_api->callApi('GET', '/api/products?p=1');
 
-        if ($response->getStatusCode() === 200) {
-            $productsData = json_decode($response->getContent(), true);
-            $products = $productsData['data'] ?? $productsData;
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
 
-        if ($response->getStatusCode() !== 200) {
-            $responseData = json_decode($response->getContent(), true);
-            $errorMessage = $responseData['message'] ?? 'Failed to get roles.';
-            return redirect()->back()->withErrors(['error' => $errorMessage]);
-        }
-
-        return view('products.index', compact('products'));
+        return view('products.index', ['products' => $response['data']]);
     }
 
     public function create()
     {
-        $categories = Category::all();
-        return view('products.create', compact('categories'));
+        $categories_response = $this->call_api->callApi('GET', '/api/categories');
+        if (isset($categories_response['error'])) {
+            return redirect()->back()->withErrors(['error' => $categories_response['error']]);
+        }
+
+        return view('products.create', ['categories' => $categories_response['data']]);
     }
+
 
     public function store(Request $request)
     {
         $data = $request->only(['name', 'description', 'category_id', 'stock_quantity', 'price']);
 
-        if (session('api_token')) {
-            $apiRequest = Request::create(
-                "/api/products",
-                'POST',
-                $data,
-                [],
-                [],
-                [
-                    'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-                    'HTTP_ACCEPT' => 'application/json',
-                ]
-            );
-            $response = app()->handle($apiRequest);
+        $response = $this->call_api->callApi('POST', '/api/products', $data);
 
-            if ($response->getStatusCode() !== 200) {
-                $responseData = json_decode($response->getContent(), true);
-                $errorMessage = $responseData['message'] ?? 'Failed to create product.';
-                return redirect()->back()->withErrors(['error' => $errorMessage]);
-            }
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
 
-        return redirect()->route('list.products');
+        return redirect()->route('list.products', ['message' => $response['message'] ?? 'Product created successfully.']);
     }
 
     public function edit($id)
     {
-        if (session('api_token')) {
-            $apiRequest = Request::create("/api/products/{$id}", 'GET', [], [], [], [
-                'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-                'HTTP_ACCEPT' => 'application/json'
-                ,
-            ]);
+        $response = $this->call_api->callApi('GET', "/api/products/{$id}");
 
-            $response = app()->handle($apiRequest);
-
-            if ($response->getStatusCode() === 200) {
-                $data = json_decode($response->getContent(), true);
-                $product = $data['data'] ?? $data;
-            }
-
-            if ($response->getStatusCode() !== 200) {
-                $responseData = json_decode($response->getContent(), true);
-                $errorMessage = $responseData['message'] ?? 'Failed to get product.';
-                return redirect()->back()->withErrors(['error' => $errorMessage]);
-            }
-            $categories = Category::all();
-
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
-        return view('products.edit', compact('product', 'categories'));
+
+        $categories_response = $this->call_api->callApi('GET', '/api/categories');
+        if (isset($categories_response['error'])) {
+            return redirect()->back()->withErrors(['error' => $categories_response['error']]);
+        }
+
+        return view('products.edit', ['product' => $response['data'], 'categories' => $categories_response['data']]);
     }
+
 
     public function update(Request $request, $id)
     {
         $data = $request->only(['name', 'description', 'category_id', 'stock_quantity', 'price']);
 
-        $apiRequest = Request::create(
-            "/api/products/{$id}",
-            'PUT',
-            $data,
-            [],
-            [],
-            [
-                'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-                'HTTP_ACCEPT' => 'application/json'
-            ]
-        );
+        $response = $this->call_api->callApi('PUT', "/api/products/{$id}", $data);
 
-        $response = app()->handle($apiRequest);
-
-        if ($response->getStatusCode() !== 200) {
-            $responseData = json_decode($response->getContent(), true);
-            $errorMessage = $responseData['message'] ?? 'Failed to update role.';
-            return redirect()->back()->withErrors(['error' => $errorMessage]);
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
-        return redirect()->route('list.products');
 
+        return redirect()->route('list.products');
     }
 
 
     public function destroy($id)
     {
-        $apiRequest = Request::create(
-            "/api/products/{$id}",
-            'DELETE',
-            [],
-            [],
-            [],
-            [
-                'HTTP_Authorization' => 'Bearer ' . session('api_token'),
-                'HTTP_ACCEPT' => 'application/json'
-            ]
-        );
-
-        $response = app()->handle($apiRequest);
-
-        if ($response->getStatusCode() !== 200) {
-            $responseData = json_decode($response->getContent(), true);
-            $errorMessage = $responseData['message'] ?? 'Failed to delete role.';
-            return redirect()->back()->withErrors(['error' => $errorMessage]);
+        $response = $this->call_api->callApi('DELETE', "/api/products/{$id}");
+        if (isset($response['error'])) {
+            return redirect()->back()->withErrors(['error' => $response['error']]);
         }
-        return redirect()->route('list.products');
 
+        return redirect()->route('list.products');
     }
 }

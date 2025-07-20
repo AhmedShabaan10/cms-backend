@@ -17,6 +17,10 @@ class RoleController extends Controller
         if ($unauthorized = $this->authorize('roles-list')) {
             return $unauthorized;
         }
+        if (request()->boolean('p')) {
+            $roles = Role::with('permissions')->get();
+            return RoleResource::collection($roles);
+        }
 
         $roles = Role::with('permissions')->paginate(30);
         return RoleResource::collection($roles);
@@ -89,6 +93,11 @@ class RoleController extends Controller
 
         try {
             $role = Role::findOrFail($id);
+            if ($role->users()->count() > 0) {
+                return response()->json([
+                    'message' => 'Cannot delete role assigned to users.'
+                ], 403);
+            }
             $role->delete();
             $role->permissions()->detach();
         } catch (ModelNotFoundException $e) {

@@ -30,8 +30,11 @@ class AuthenticatedSessionController extends Controller
 
         $response = app()->handle($apiRequest);
 
-        if ($response->getStatusCode() !== 200) {
+        if ($response->getStatusCode() == 401) {
             return redirect()->back()->withErrors(['email' => 'Invalid credentials.']);
+        }
+        if ($response->getStatusCode() == 403) {
+            return redirect()->back()->withErrors(['email' => 'User is not active.']);
         }
 
         $data = json_decode($response->getContent(), true);
@@ -63,17 +66,4 @@ class AuthenticatedSessionController extends Controller
         return redirect('/')->with('success', 'Logged out successfully!');
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/');
-    }
 }

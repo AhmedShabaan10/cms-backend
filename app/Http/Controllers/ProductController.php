@@ -16,6 +16,7 @@ class ProductController extends Controller
         if ($unauthorized = $this->authorize('product-list')) {
             return $unauthorized;
         }
+
         if (request()->boolean('p')) {
             $products = Product::with('category')->get();
             return ProductResource::collection($products);
@@ -94,6 +95,11 @@ class ProductController extends Controller
 
         try {
             $product = Product::findOrFail($id);
+            if ($product->orders()->count() > 0) {
+                return response()->json([
+                    'message' => 'Cannot delete product with associated orders.'
+                ], 403);
+            }
             $product->delete();
         } catch (ModelNotFoundException $e) {
             return response()->json([

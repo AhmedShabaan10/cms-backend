@@ -60,8 +60,8 @@
                             <label for="user_id">Assigned User</label>
                             <select name="user_id" class="form-control form-control-sm">
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ $order['assigned_user']['id'] == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }}
+                                    <option value="{{ $user['id'] }}" {{ $order['assigned_user']['id'] == $user['id'] ? 'selected' : '' }}>
+                                        {{ $user['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -71,8 +71,8 @@
                             <label for="status_id">Order Status</label>
                             <select name="status_id" class="form-control form-control-sm">
                                 @foreach($status as $stat)
-                                    <option value="{{ $stat->id }}" {{ $order['status'] == $stat->name ? 'selected' : '' }}>
-                                        {{ ucfirst($stat->name) }}
+                                    <option value="{{ $stat['id'] }}" {{ $order['status'] == $stat['name'] ? 'selected' : '' }}>
+                                        {{ ucfirst($stat['name']) }}
                                     </option>
                                 @endforeach
                             </select>
