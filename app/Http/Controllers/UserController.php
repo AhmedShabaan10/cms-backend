@@ -72,9 +72,17 @@ class UserController extends Controller
         }
         $data = $request->all();
 
+        if (isset($data['password']) && $request->filled('password')) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+            unset($data['password_confirmation']);
+        }
+
         try {
             $user = User::findOrFail($id);
             $user->update($data);
+            $user->roles()->sync($data['role'] ?? $user->roles->pluck('id')->toArray());
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'User not found.'

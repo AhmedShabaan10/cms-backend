@@ -28,9 +28,7 @@ class RoleController extends Controller
             return $unauthorized;
         }
 
-        $data = $request->validate([
-
-        ]);
+        $data = $request->all();
 
         $role = DB::transaction(function () use ($data) {
             $role = Role::create($data);
