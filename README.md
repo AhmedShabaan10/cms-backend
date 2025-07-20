@@ -1,14 +1,9 @@
 # CMS Backend System
-
-![Laravel](https://img.shields.io/badge/Laravel-10.x-red)
-![License](https://img.shields.io/github/license/AhmedShabaan10/cms-backend)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
-
 ## 🚀 Overview
 Content Management System (CMS) backend built with Laravel, featuring user authentication, role-based access control, and RESTful APIs.
 
 ## 🖥️ Frontend Dashboard (Blade Laravel)
-This CMS includes a Laravel Blade-based frontend interface that interacts with the backend via shared APIs and services.
+This CMS includes a Laravel Blade-based frontend interface that interacts with the backend via APIs .
 
 Access it locally at:  
 🔗 http://127.0.0.1:8000
@@ -19,7 +14,6 @@ Access it locally at:
 - Product Management System
 - Order Management
 - RESTful API Endpoints
-- Multi-language Support
 - Docker Support
 
 
@@ -27,7 +21,6 @@ Access it locally at:
 - PHP >= 8.1
 - Composer
 - MySQL/PostgreSQL
-- Node.js & NPM
 - Docker (optional)
 
 ## 🛠️ Installation
@@ -38,9 +31,7 @@ git clone https://github.com/AhmedShabaan10/cms-backend.git
 cd cms-backend
 
 2. Install dependencies
-```bash
 composer install
-```
 
 3. Environment setup
 ```bash
