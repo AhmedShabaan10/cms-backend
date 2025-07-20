@@ -29,9 +29,11 @@ Access it locally at:
 ```bash
 git clone https://github.com/AhmedShabaan10/cms-backend.git
 cd cms-backend
-
+```
 2. Install dependencies
+```bash
 composer install
+```
 
 3. Environment setup
 ```bash
@@ -70,10 +72,34 @@ php artisan test --filter=OrderDetailsServiceTest
 
 > Seeded by `AdminSeeder.php`
 
-| Role           | Email              | Password |
-|----------------|--------------------|----------|
-| Super Admin    | admin@admin.com    | 123456   |
-| Admin (RBAC)   | user@admin.com     | 123456   |
+| Role         | Email           | Password |
+| ------------ | --------------- | -------- |
+| Super Admin  | admin@admin.com | 123456   |
+| Admin (RBAC) | user@admin.com  | 123456   |
 
 - **Super Admin** has full unrestricted access.
 - **Admin** is assigned the `admin` role and has controlled permissions.
+
+
+## 🐳 Docker Setup (Optional)
+
+> You can optionally run the CMS backend using Docker and Docker Compose.  
+> This is not required if you prefer to run the project manually on your local machine.
+
+
+### 1. Build and Run the Containers
+
+```bash
+docker-compose up -d --build
+```
+
+Access the container and run the setup as usual:
+
+```bash
+docker exec -it app bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+```
