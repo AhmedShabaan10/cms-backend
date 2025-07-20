@@ -96,7 +96,7 @@ docker-compose up -d --build
 Access the container and run the setup as usual:
 
 ```bash
-docker exec -it app bash
+docker exec -it CMS-app bash
 composer install
 cp .env.example .env
 php artisan key:generate
