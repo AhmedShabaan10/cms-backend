@@ -17,11 +17,16 @@ class OrderController extends Controller
     {
         $this->details = $details;
     }
-    
+
     public function index()
     {
         if ($unauthorized = $this->authorize('orders-list')) {
             return $unauthorized;
+        }
+
+        if (request()->boolean('p')) {
+            $orders = Order::with('user')->get();
+            return OrderResource::collection($orders);
         }
 
         $orders = Order::with('user')->paginate(30);

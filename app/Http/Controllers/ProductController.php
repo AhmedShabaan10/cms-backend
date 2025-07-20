@@ -17,6 +17,11 @@ class ProductController extends Controller
             return $unauthorized;
         }
 
+        if (request()->boolean('p')) {
+            $products = Product::with('category')->get();
+            return ProductResource::collection($products);
+        }
+
         $products = Product::with('category')->paginate(30);
         return ProductResource::collection($products);
     }
@@ -66,8 +71,8 @@ class ProductController extends Controller
         $data = $request->all();
         try {
 
-        $product = Product::findOrFail($id);
-        $product->update($data);
+            $product = Product::findOrFail($id);
+            $product->update($data);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
@@ -90,6 +95,11 @@ class ProductController extends Controller
 
         try {
             $product = Product::findOrFail($id);
+            if ($product->orders()->count() > 0) {
+                return response()->json([
+                    'message' => 'Cannot delete product with associated orders.'
+                ], 403);
+            }
             $product->delete();
         } catch (ModelNotFoundException $e) {
             return response()->json([

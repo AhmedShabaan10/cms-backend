@@ -8,7 +8,6 @@ use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Hash;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
@@ -17,6 +16,12 @@ class UserController extends Controller
     {
         if ($unauthorized = $this->authorize('users-list')) {
             return $unauthorized;
+        }
+
+        if (request()->boolean('p')) {
+            $users = User::with('roles')->where('is_super_admin', false)
+                ->where('id', '!=', auth()->user()->id)->get();
+            return UserResource::collection($users);
         }
 
         $users = User::with('roles')->where('is_super_admin', false)
@@ -39,7 +44,7 @@ class UserController extends Controller
                 'message' => 'User not found.'
             ], 404);
         }
-        
+
         return new UserResource($user);
     }
 
@@ -72,9 +77,17 @@ class UserController extends Controller
         }
         $data = $request->all();
 
+        if (isset($data['password']) && $request->filled('password')) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+            unset($data['password_confirmation']);
+        }
+
         try {
             $user = User::findOrFail($id);
             $user->update($data);
+            $user->roles()->sync($data['role'] ?? $user->roles->pluck('id')->toArray());
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'User not found.'
@@ -94,6 +107,11 @@ class UserController extends Controller
 
         try {
             $user = User::findOrFail($id);
+            if ($user->orders()->count() > 0) {
+                return response()->json([
+                    'message' => 'Cannot delete user has orders.'
+                ], 403);
+            }
             $user->delete();
         } catch (ModelNotFoundException $e) {
             return response()->json([
