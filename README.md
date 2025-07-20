@@ -1,7 +1,17 @@
 # CMS Backend System
 
+![Laravel](https://img.shields.io/badge/Laravel-10.x-red)
+![License](https://img.shields.io/github/license/AhmedShabaan10/cms-backend)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+
 ## 🚀 Overview
-A robust Content Management System (CMS) backend built with Laravel, featuring user authentication, role-based access control, and RESTful APIs.
+Content Management System (CMS) backend built with Laravel, featuring user authentication, role-based access control, and RESTful APIs.
+
+## 🖥️ Frontend Dashboard (Blade Laravel)
+This CMS includes a Laravel Blade-based frontend interface that interacts with the backend via shared APIs and services.
+
+Access it locally at:  
+🔗 http://127.0.0.1:8000
 
 ## ✨ Features
 - User Authentication using Laravel Sanctum
@@ -11,6 +21,7 @@ A robust Content Management System (CMS) backend built with Laravel, featuring u
 - RESTful API Endpoints
 - Multi-language Support
 - Docker Support
+
 
 ## 🔧 Prerequisites
 - PHP >= 8.1
@@ -23,14 +34,12 @@ A robust Content Management System (CMS) backend built with Laravel, featuring u
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/cms-backend.git
+git clone https://github.com/AhmedShabaan10/cms-backend.git
 cd cms-backend
-```
 
 2. Install dependencies
 ```bash
 composer install
-npm install
 ```
 
 3. Environment setup
@@ -55,9 +64,6 @@ This project uses Laravel Sanctum for API authentication. To authenticate:
 Authorization: Bearer <your-token>
 ```
 
-## 📚 API Documentation
-API endpoints documentation available at 
-
 ## 🧪 Running Tests
 Run all tests:
 ```bash
@@ -68,3 +74,15 @@ Run specific test:
 ```bash
 php artisan test --filter=OrderDetailsServiceTest
 ```
+
+## 🔐 Default Admin Credentials
+
+> Seeded by `AdminSeeder.php`
+
+| Role           | Email              | Password |
+|----------------|--------------------|----------|
+| Super Admin    | admin@admin.com    | 123456   |
+| Admin (RBAC)   | user@admin.com     | 123456   |
+
+- **Super Admin** has full unrestricted access.
+- **Admin** is assigned the `admin` role and has controlled permissions.
